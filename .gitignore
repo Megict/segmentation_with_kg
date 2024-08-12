@@ -1,0 +1,4 @@
+vspu_2019*
+*.ipynb_checkpoints
+*__pycache__
+*transfer*
