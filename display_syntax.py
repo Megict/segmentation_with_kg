@@ -45,9 +45,10 @@ def update_graph(update_req_cnt, text):
     print("============================")
     print(update_req_cnt)
     if text is None:
-        text = 0
-        #text = "Построение грубых сеток заключается в удалении из каждой четверки последовательных узлов двух средних точек как показано на рис"
+        # text = 0
+        text = "Построение грубых сеток заключается в удалении из каждой четверки последовательных узлов двух средних точек как показано на рис"
     print(text)
+
 
     print("construction attempt")
     #graph = my_builder.extract_noun_phrases(text, clear_hanging_nodes=True, add_focus=["среда"])
