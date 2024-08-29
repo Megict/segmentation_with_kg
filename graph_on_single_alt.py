@@ -30,9 +30,10 @@ def find_name_group(graph, starting_point, ng = set()):
 
 def ng_graph(text):
     sentence_graph = builder.create_syntax_graph_for_sentence(text)
+    print("graph constructed")
     subgraphs = []
 
-    ng_graph = nx.Graph()
+    ng_graph = nx.DiGraph()
     
     for node in sentence_graph:
         if sentence_graph.nodes[node]['pos'] != "VERB":
@@ -83,8 +84,12 @@ def ng_graph(text):
             
     for elm in ng_graph.nodes:
         if ng_graph.nodes[elm]["pos"] == "NG":
+            ng_graph.nodes[elm]["color"] = "white"
             subgraphs.append(sentence_graph.subgraph(ng_graph.nodes[elm]['part']))
             ng_graph.nodes[elm]["ng_graph"] = sentence_graph.subgraph(ng_graph.nodes[elm]['part'])
+        else:
+            ng_graph.nodes[elm]["color"] = "blue"
+
 
     return ng_graph
 

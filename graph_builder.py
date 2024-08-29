@@ -266,7 +266,7 @@ class GraphBuilder:
         parse_d = {}
 
         for word in sent_repr.words:
-            parse_d[word.text] = {"head": sent_repr.words[word.head-1].text, 
+            parse_d[word.text + " " + str(word.start_char) ] = {"head": sent_repr.words[word.head-1].text  + " " + str(sent_repr.words[word.head-1].start_char), 
                                   "dep": word.deprel,
                                   "upos": word.upos,
                                   "lem": word.lemma.lower(),
@@ -300,11 +300,11 @@ class GraphBuilder:
                 # appos - пояснительное дополнение, 
                 # для nsubj может есть смысл силой приводить связь к prp если второе слово - adj
                 pair[0] = {'pos' : parse_d[elm]['upos'], 
-                            'lem' : parse_d[elm]['lem'] + " (" + str(parse_d[elm]['start']) + ")",
+                            'lem' : parse_d[elm]['lem'],
                             'loc' : (parse_d[elm]['end'] +\
                                     parse_d[elm]['start']) / 2}
                 pair[1] = {'pos' : parse_d[parse_d[elm]['head']]['upos'], 
-                            'lem' : parse_d[parse_d[elm]['head']]['lem'] + " (" + str(parse_d[parse_d[elm]['head']]['start']) + ")", 
+                            'lem' : parse_d[parse_d[elm]['head']]['lem'], 
                             'loc' : (parse_d[parse_d[elm]['head']]['end'] +\
                                     parse_d[parse_d[elm]['head']]['start']) / 2}
             else:              
@@ -317,13 +317,13 @@ class GraphBuilder:
                         continue
 
                     pair[0] = {'pos' : parse_d[elm]['upos'], 
-                                'lem' : parse_d[elm]['lem'] + " (" + str(parse_d[elm]['start']) + ")",
+                                'lem' : parse_d[elm]['lem'],
                                 'loc' : (parse_d[elm]['end'] +\
                                         parse_d[elm]['start']) / 2}
                     # добавление второго элемента пары
                     # проходим по дереву на два шага назад, вместо одного
                     pair[1] = {'pos' : parse_d[parse_d[parse_d[elm]['head']]['head']]['upos'], 
-                                'lem' : parse_d[parse_d[parse_d[elm]['head']]['head']]['lem'] + " (" + str(parse_d[parse_d[parse_d[elm]['head']]['start']]) + ")",
+                                'lem' : parse_d[parse_d[parse_d[elm]['head']]['head']]['lem'],
                                 'loc' : (parse_d[parse_d[parse_d[elm]['head']]['head']]['end'] +\
                                         parse_d[parse_d[parse_d[elm]['head']]['head']]['start']) / 2}
                 else:

@@ -3,11 +3,15 @@ import networkx as nx
 import numpy as np
 
 def draw_graph(G, pos, links = [],
+                        simple_data = False,
                        link_color_key = {},
                        display_edges = True,
                        highlight_around = [], # обязательно оставить 
                        edge_limit_key_name = None, edge_limit_key_values = [0, 0], # показвать только грани со значениями в пределах
-                       color_key = None, show_all = False):
+                       color_key = None, show_all = False,
+                       for_ng_graph = False,
+                       shift = [0,0],
+                       scale = 1):
     
     print("-------------------")
     print(highlight_around)
@@ -16,6 +20,11 @@ def draw_graph(G, pos, links = [],
     print(edge_limit_key_name)
     print(edge_limit_key_values)
     print("-------------------")
+    for elm in pos:
+        pos[elm][0] *= scale
+        pos[elm][1] *= scale
+        pos[elm][0] += shift[0]
+        pos[elm][1] += shift[1]
     
     if highlight_around != []:
         edge_limit_key_name = None
@@ -84,9 +93,13 @@ def draw_graph(G, pos, links = [],
             edge_y.append([y0, y1, None])
 
             # edge_text.append(G.edges()[edge]['locations'])
-            edge_text.append(G.edges()[edge]['label'][1] + ' ' + str(G.edges()[edge]['locations'][0]['p']) + ' ' +\
-                                                        '(' + str(len(G.edges()[edge]['locations'])) + ')')
-            edge_opacity.append(len(G.edges()[edge]['locations']))
+            if simple_data:
+                edge_text.append(str(edge))
+                edge_opacity.append(1)
+            else:
+                edge_text.append(G.edges()[edge]['label'][1] + ' ' + str(G.edges()[edge]['locations'][0]['p']) + ' ' +\
+                                                            '(' + str(len(G.edges()[edge]['locations'])) + ')')
+                edge_opacity.append(len(G.edges()[edge]['locations']))
 
         om = max(edge_opacity)
         edge_opacity = [o / om for o in edge_opacity]
@@ -189,15 +202,18 @@ def draw_graph(G, pos, links = [],
         node_y.append(y)
         if nodes_hold == [] or node in nodes_hold:
             cur_hovertext = f'{node}\n'# {len(G.nodes[node]["locations"])} ({G.nodes[node]["locations"]})'
-            node_text.append(f'{node}')
-            node_hovertext.append(cur_hovertext + " (" + str(len(G.nodes[node]["locations"])) + ")" if len(cur_hovertext) < 40 else cur_hovertext[0:37] + "...")
+            if G.nodes[node]["pos"] == "NG":
+                node_text.append(f' ')
+            else:
+                node_text.append(f'{node}')
+            node_hovertext.append(cur_hovertext + " (" + str(len(G.nodes[node]["locations"])) + ")" if len(cur_hovertext) < 40 and simple_data == False else cur_hovertext[0:37] + "...")
         else:
             node_text.append('')
             node_hovertext.append('')
 
         node_colorscale.append(G.nodes[node][color_key] if color_key != None else 0)
 
-        if nodes_hold == []:
+        if nodes_hold == [] and simple_data == False:
             node_opacity.append(len(G.nodes[node]["locations"]))
         else:
             if node in nodes_hold:
@@ -235,7 +251,27 @@ def draw_graph(G, pos, links = [],
             )
         )
         
-    fig = go.Figure(data = edge_traces + [hl_in_edge_trace, hl_out_edge_trace] + link_traces + node_traces,
+    if for_ng_graph:
+        return edge_traces, node_traces
+    
+    subgraph_traces = []
+    for elm in G.nodes:
+        print(elm)
+        if G.nodes[elm]["pos"] == "NG":
+            x_shift, y_shift = pos[elm]
+            
+            for node in G.nodes[elm]["ng_graph"]:
+                print(G.nodes[elm]["ng_graph"][node])
+            print("---------------------")
+            cnt = 0
+            for edge in G.nodes[elm]["ng_graph"].edges:
+                print(G.nodes[elm]["ng_graph"].edges[edge])
+                cnt += 1
+            if cnt != 0:
+                subgraph_trace = draw_graph(G.nodes[elm]["ng_graph"], nx.kamada_kawai_layout(G.nodes[elm]["ng_graph"]), simple_data = False, for_ng_graph = True, shift = [x_shift, y_shift], scale = 0.2)  
+                subgraph_traces +=   subgraph_trace[0] + subgraph_trace[1]
+        
+    fig = go.Figure(data = edge_traces + [hl_in_edge_trace, hl_out_edge_trace] + link_traces + node_traces + subgraph_traces,
                     layout=go.Layout(
                         #title='<br>Граф связности терминов',
                         titlefont_size=16,

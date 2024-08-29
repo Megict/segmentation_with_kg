@@ -1,6 +1,7 @@
 from dash import Dash, html, dcc, callback, Output, Input, State
 import plotly.graph_objects as go
 import dash_mantine_components as dmc
+from graph_on_single_alt import ng_graph
 
 import networkx as nx
 import numpy as np
@@ -21,7 +22,7 @@ app.layout = html.Div([
     html.Div([
         html.Button('update', id='do-update', style={'width': '5vw', 'margin-left' : '2vw'}),
         #dcc.Input(id="text-input", placeholder="input sentence", style={'width': '60vw', 'height': '3vh', 'margin-left' : '5vw', 'margin-up' : '5vh'})
-        dcc.Input(id='itext_input', placeholder="Введите текст",  style={'width': '20vw', 'margin-left' : '5vw', 'margin-up' : '5vh'}),
+        dcc.Input(id='itext_input', placeholder="Введите текст",  style={'width': '70vw', 'margin-left' : '5vw', 'margin-up' : '5vh'}),
 
     ], style={'margin-top' : '2vh', 'display': 'flex'}),
 
@@ -46,15 +47,23 @@ def update_graph(update_req_cnt, text):
     print(update_req_cnt)
     if text is None:
         # text = 0
-        text = "Построение грубых сеток заключается в удалении из каждой четверки последовательных узлов двух средних точек как показано на рис"
+        text = "Разрабатываемая система обеспечивает к примеру решение задач формирования системы образовательных услуг региона округа района т е задач требующих при решении географической привязки к местности"
     print(text)
 
 
     print("construction attempt")
     #graph = my_builder.extract_noun_phrases(text, clear_hanging_nodes=True, add_focus=["среда"])
-    graph = my_builder.create_syntax_graph_for_sentence(text)
+    #graph = my_builder.create_syntax_graph_for_sentence(text)
+    graph = ng_graph(text)
     #display_graph = my_builder.filter_graph_(graph)
-    print(graph.nodes())
+    print("=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~")
+    for n in graph.nodes:
+        print(graph.nodes[n])
+    print("=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~")
+    print("=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~")
+    for n in graph.edges:
+        print(n, graph.edges[n])
+    print("=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~")
 
     print("subgraph:\t done")
     pos = nx.kamada_kawai_layout(nx.Graph(graph))
@@ -62,6 +71,7 @@ def update_graph(update_req_cnt, text):
     print("layout:\t done")
 
     fig = draw_graph(graph, pos,
+                     simple_data=True,
                      link_color_key = {"freq_link" : "black", "dist_link" : "orange", "sem_link" : "magenta"},
                      display_edges = True,
                      color_key = "color", 
