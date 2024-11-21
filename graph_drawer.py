@@ -227,29 +227,53 @@ def draw_graph(G, pos, links = [],
             node_opacity[i] /= om
 
     # ------------------------------------------------------------------------------------
-    node_traces = []
-    for i in range(len(node_x)):
-        node_traces.append(go.Scatter(
-            x=[node_x[i]], y=[node_y[i]],
-            mode= 'markers+text',
-            text = node_text[i],
-            hovertext = node_hovertext[i],
-            hoverinfo='text',
-            opacity = max(node_opacity[i], 0.5),
+    # node_traces = []
+    # for i in range(len(node_x)):
+    #     node_traces.append(go.Scatter(
+    #         x=[node_x[i]], y=[node_y[i]],
+    #         mode= 'markers+text',
+    #         text = node_text[i],
+    #         hovertext = node_hovertext[i],
+    #         hoverinfo='text',
+    #         opacity = max(node_opacity[i], 0.5),
 
-            marker=dict(
-                showscale=True,
-                # colorscale options
-                #'Greys' | 'YlGnBu' | 'Greens' | 'YlOrRd' | 'Bluered' | 'RdBu' |
-                #'Reds' | 'Blues' | 'Picnic' | 'Rainbow' | 'Portland' | 'Jet' |
-                #'Hot' | 'Blackbody' | 'Earth' | 'Electric' | 'Viridis' |
-                colorscale='Rainbow' if color_key == 'subset' else 'RdBu' if color_key == 'dp' else 'deep',
-                reversescale=True,
-                color = node_colorscale[i],
-                size = 10,
-                line_width=2)
-            )
+    #         marker=dict(
+    #             showscale=True,
+    #             # colorscale options
+    #             #'Greys' | 'YlGnBu' | 'Greens' | 'YlOrRd' | 'Bluered' | 'RdBu' |
+    #             #'Reds' | 'Blues' | 'Picnic' | 'Rainbow' | 'Portland' | 'Jet' |
+    #             #'Hot' | 'Blackbody' | 'Earth' | 'Electric' | 'Viridis' |
+    #             colorscale='Rainbow' if color_key == 'subset' else 'RdBu' if color_key == 'dp' else 'deep',
+    #             reversescale=True,
+    #             #color = node_colorscale[i],
+    #             size = 10,
+    #             line_width=2)
+    #         )
+    #     )
+
+    node_traces = (go.Scatter(
+        x=node_x, y=node_y,
+        mode= 'markers+text',
+        text = node_text,
+        hovertext = node_hovertext,
+        hoverinfo='text',
+        # opacity = [max(o, 0.5) for o in node_opacity],
+        
+
+        marker=dict(
+            showscale=True,
+            # colorscale options
+            #'Greys' | 'YlGnBu' | 'Greens' | 'YlOrRd' | 'Bluered' | 'RdBu' |
+            #'Reds' | 'Blues' | 'Picnic' | 'Rainbow' | 'Portland' | 'Jet' |
+            #'Hot' | 'Blackbody' | 'Earth' | 'Electric' | 'Viridis' |
+            colorscale='Rainbow', #if color_key == 'subset' else 'RdBu' if color_key == 'dp' else 'deep',
+            reversescale=True,
+            color = [i for i in range(len(node_x))],
+            #color = node_colorscale[i],
+            size = 10,
+            line_width=2)
         )
+    )
         
     if for_ng_graph:
         return edge_traces, node_traces
@@ -271,7 +295,7 @@ def draw_graph(G, pos, links = [],
                 subgraph_trace = draw_graph(G.nodes[elm]["ng_graph"], nx.kamada_kawai_layout(G.nodes[elm]["ng_graph"]), simple_data = False, for_ng_graph = True, shift = [x_shift, y_shift], scale = 0.2)  
                 subgraph_traces +=   subgraph_trace[0] + subgraph_trace[1]
         
-    fig = go.Figure(data = edge_traces + [hl_in_edge_trace, hl_out_edge_trace] + link_traces + node_traces + subgraph_traces,
+    fig = go.Figure(data = edge_traces + [hl_in_edge_trace, hl_out_edge_trace] + link_traces + [node_traces] + subgraph_traces,
                     layout=go.Layout(
                         #title='<br>Граф связности терминов',
                         titlefont_size=16,
