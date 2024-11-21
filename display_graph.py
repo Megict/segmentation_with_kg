@@ -24,17 +24,19 @@ app.layout = html.Div([
     html.Div([
         dcc.Dropdown(id='center-subgr',
                      placeholder="Выберите вершину", style={'width': '20vw', 'margin-left' : '2vw'}),
-        dmc.Slider(value=2,
-                        step = 1, min = 1, max = 10, id = 'depth',style={'width': '15vw',  
-                                                    'margin-left' : '4vw' }),
+        dcc.Dropdown(id = 'depth',value = 2, options = [1,2,3,4,5,6,7,8,9,10], style={'width': '15vw', 'margin-left' : '4vw' }),
+                    
+        # dmc.Slider(value=2,
+        #                 step = 1, min = 1, max = 10, ,),
         dcc.Dropdown(options = ['links', 'true_edges'], 
-                     value = 'links', 
+                     value = 'true_edges', 
                      id = 'display-mode', 
                      style={'width': '15vw', 'margin-left' : '4vw' }),
         dmc.Slider(value=10,
                    step = 2, min = 0, max = 100, id = 'links',style={'width': '15vw',  
                                                     'margin-left' : '4vw' })
     ], style={'margin-top' : '2vh', 'display': 'flex'}),
+
     dcc.Graph(id='graph-content', style={
                             'height': '80vh', 'width': '80vw', 'margin-top': '0vh', 'margin-left': '5vw'})
 ])
@@ -50,7 +52,7 @@ calculate_new_links = False
 
 my_graph = KnowledgeGraph()
 print("loading graph elements...")
-my_graph.load("vspu_2019_graph_3_3_links_for_norm_dset")
+my_graph.load("test_graph_1")
 gran = GraphAnalyser(my_graph)
 
 if calculate_new_pos:
@@ -73,13 +75,13 @@ if calculate_new_links:
     my_graph.save("test_save")
     print("saved graph")
 
-links_f = gran.present_links(link_type = "freq_link", top_p=10)
-print("links _f:\t loaded")
-links_d = gran.present_links(link_type = "dist_link", top_p=0.5)
-print("links _d:\t loaded")
-links_s = gran.present_links(link_type = "sem_link", top_p=0.5)
-print("links _s:\t loaded")
-display_links = {**links_s, **links_d, **links_f} 
+# links_f = gran.present_links(link_type = "freq_link", top_p=10)
+# print("links _f:\t loaded")
+# links_d = gran.present_links(link_type = "dist_link", top_p=0.5)
+# print("links _d:\t loaded")
+# links_s = gran.present_links(link_type = "sem_link", top_p=0.5)
+# print("links _s:\t loaded")
+# display_links = {**links_s, **links_d, **links_f} 
 # при отображении пару dthiby связывает только одна ссылка
 # print(links_d)
 
@@ -113,7 +115,7 @@ def update_graph(_, time_range, highlight_node, center_node, depth, edges_displa
 
     print("construction attempt")
     if edges_display == "links":
-        links_ = display_links
+        # links_ = display_links
         display_edges_ = False
     else:
         links_ = []
@@ -134,7 +136,7 @@ def update_graph(_, time_range, highlight_node, center_node, depth, edges_displa
                      links = links_,
                      link_color_key = {"freq_link" : "black", "dist_link" : "orange", "sem_link" : "magenta"},
                      display_edges = display_edges_,
-                     color_key = "color", 
+                     color_key = None,#"color", 
                      edge_limit_key_name = None, #'locations', 
                      edge_limit_key_values = time_range, 
                      highlight_around= [highlight_node] if highlight_node != None else [])

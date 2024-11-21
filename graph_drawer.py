@@ -202,7 +202,7 @@ def draw_graph(G, pos, links = [],
         node_y.append(y)
         if nodes_hold == [] or node in nodes_hold:
             cur_hovertext = f'{node}\n'# {len(G.nodes[node]["locations"])} ({G.nodes[node]["locations"]})'
-            if G.nodes[node]["pos"] == "NG":
+            if "pos" in G.nodes[node] and G.nodes[node]["pos"] == "NG":
                 node_text.append(f' ')
             else:
                 node_text.append(f'{node}')
@@ -235,7 +235,7 @@ def draw_graph(G, pos, links = [],
             text = node_text[i],
             hovertext = node_hovertext[i],
             hoverinfo='text',
-            opacity = max(node_opacity[i], 0.2),
+            opacity = max(node_opacity[i], 0.5),
 
             marker=dict(
                 showscale=True,
@@ -257,7 +257,7 @@ def draw_graph(G, pos, links = [],
     subgraph_traces = []
     for elm in G.nodes:
         print(elm)
-        if G.nodes[elm]["pos"] == "NG":
+        if "pos" in G.nodes[elm] and G.nodes[elm]["pos"] == "NG":
             x_shift, y_shift = pos[elm]
             
             for node in G.nodes[elm]["ng_graph"]:
