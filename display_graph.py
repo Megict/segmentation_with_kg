@@ -136,7 +136,7 @@ def update_graph(_, time_range, highlight_node, center_node, depth, edges_displa
                      links = links_,
                      link_color_key = {"freq_link" : "black", "dist_link" : "orange", "sem_link" : "magenta"},
                      display_edges = display_edges_,
-                     color_key = None,#"color", 
+                     color_key = "color", 
                      edge_limit_key_name = None, #'locations', 
                      edge_limit_key_values = time_range, 
                      highlight_around= [highlight_node] if highlight_node != None else [])

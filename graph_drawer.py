@@ -206,7 +206,7 @@ def draw_graph(G, pos, links = [],
                 node_text.append(f' ')
             else:
                 node_text.append(f'{node}')
-            node_hovertext.append(cur_hovertext + " (" + str(len(G.nodes[node]["locations"])) + ")" if len(cur_hovertext) < 40 and simple_data == False else cur_hovertext[0:37] + "...")
+            node_hovertext.append(cur_hovertext + " " + str(len(G.nodes[node]["locations"])) + " (" + ','.join([str(int(txt['p'])) for txt in (G.nodes[node]["locations"])]) + ")" if len(cur_hovertext) < 40 and simple_data == False else cur_hovertext[0:37] + "...")
         else:
             node_text.append('')
             node_hovertext.append('')
@@ -268,7 +268,7 @@ def draw_graph(G, pos, links = [],
             #'Hot' | 'Blackbody' | 'Earth' | 'Electric' | 'Viridis' |
             colorscale='Rainbow', #if color_key == 'subset' else 'RdBu' if color_key == 'dp' else 'deep',
             reversescale=True,
-            color = [i for i in range(len(node_x))],
+            color = node_colorscale,
             #color = node_colorscale[i],
             size = 10,
             line_width=2)

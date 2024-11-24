@@ -115,6 +115,7 @@ class GraphBuilder:
         return graph_structure        
 
     def parse_file_and_fill_graph(self, graph_structure, fname, trace = True):
+        theme_counter = 0
         text = ''
         with io.open(fname , encoding='utf-8') as inp:
             text += inp.read()
@@ -122,13 +123,16 @@ class GraphBuilder:
         doc_name = os.path.splitext(fname)[0]
         graph_structure.document_base[doc_name] = {'fname' : fname, 'len' : len(text)}
         # биение текста на предложения
-        current_document = [sent for sent in sent_tokenize(text, language="russian")]
+        current_document = [sent for sent in text.split('\n') if sent.strip() != '']
+
         # если нет парера, инициализируем парсер
         self.init_parser()
         # делаем новый граф. в него будем записывать сущности и отношения, извлеченные из текста
         current_document_graph = nx.DiGraph() # граф, который будет строиться во время обработки документа, а затем сольется с исходным графом
         # проход по предложениям в документе
         for s in tqdm(current_document) if trace else current_document:
+            if s == current_document[-1]:
+                theme_counter += 1
             sent_repr = self.parser(s).sentences[0]
             parse_d = {}
             # преобразование вывода пайплайна в словарь, содержащий только необходимые ключи
@@ -239,19 +243,22 @@ class GraphBuilder:
                 
                 # добавление цветов
                 for element in pair:
-                    if element['pos'] == 'NOUN': # существительные (объекты)
-                        current_document_graph.nodes[element['lem']]["color"] = 'pink'
-                    else:
-                        if element['pos'] in ['ADJ', 'ADV']: # прилагательные (свойства)
-                            current_document_graph.nodes[element['lem']]["color"] = 'orange'
-                        else:
-                            if element['pos'] == 'PROPN': # имена собственные
-                                current_document_graph.nodes[element['lem']]["color"]  = 'red'
-                            else:
-                                if element['pos'] in ['VERB', 'AUX']: # глаголы
-                                    current_document_graph.nodes[element['lem']]["color"]  = 'cyan'
-                                else:
-                                    current_document_graph.nodes[element['lem']]["color"]  = 'yellow'   
+                    current_document_graph.nodes[element['lem']].setdefault("color", theme_counter + 5)
+                    if current_document_graph.nodes[element['lem']]["color"] != theme_counter + 5:
+                        current_document_graph.nodes[element['lem']]["color"] == 0
+                    # if element['pos'] == 'NOUN': # существительные (объекты)
+                    #     current_document_graph.nodes[element['lem']]["color"] = 'pink'
+                    # else:
+                    #     if element['pos'] in ['ADJ', 'ADV']: # прилагательные (свойства)
+                    #         current_document_graph.nodes[element['lem']]["color"] = 'orange'
+                    #     else:
+                    #         if element['pos'] == 'PROPN': # имена собственные
+                    #             current_document_graph.nodes[element['lem']]["color"]  = 'red'
+                    #         else:
+                    #             if element['pos'] in ['VERB', 'AUX']: # глаголы
+                    #                 current_document_graph.nodes[element['lem']]["color"]  = 'cyan'
+                    #             else:
+                    #                 current_document_graph.nodes[element['lem']]["color"]  = 'yellow'   
 
         # добавляем построенный граф в структурку графа знаний
         graph_structure.__merge_graph__(current_document_graph)
